@@ -36,15 +36,15 @@ const loginStack = () => {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
-          name={'Log In'}
-          component={Login}
+          name={'Tabs'}
+          component={HomeTabNavigator}
           options={{
             headerShown: false,
           }}
         />
         <Stack.Screen
-          name={'Tabs'}
-          component={HomeTabNavigator}
+          name={'Log In'}
+          component={Login}
           options={{
             headerShown: false,
           }}
