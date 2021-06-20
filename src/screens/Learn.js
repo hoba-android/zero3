@@ -75,23 +75,31 @@ const Learn = ({navigation}) => {
           controls={controls}
         />
 
-        <View style={{borderWidth: 2, borderRadius: 10, borderColor: 'orange'}}>
+        <View
+          style={{
+            borderWidth: 2,
+            borderRadius: 10,
+            borderColor: 'orange',
+            width: 360,
+            alignItems: 'center',
+            marginBottom: 20,
+          }}>
           <Icon name="playlist" size={100} color="black" style={{margin: 20}} />
-        </View>
 
-        <View style={{flexDirection: 'row'}}>
-          <TouchableOpacity onPress={playSound}>
-            <Icon2 name="play" size={40} color="black" style={{margin: 20}} />
-          </TouchableOpacity>
+          <View style={{flexDirection: 'row'}}>
+            <TouchableOpacity onPress={playSound}>
+              <Icon2 name="play" size={40} color="black" style={{margin: 20}} />
+            </TouchableOpacity>
 
-          <TouchableOpacity onPress={puaseSound}>
-            <Icon2
-              name="pausecircle"
-              size={40}
-              color="black"
-              style={{margin: 20}}
-            />
-          </TouchableOpacity>
+            <TouchableOpacity onPress={puaseSound}>
+              <Icon2
+                name="pausecircle"
+                size={40}
+                color="black"
+                style={{margin: 20}}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </ScrollView>

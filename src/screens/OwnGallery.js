@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,126 +10,71 @@ import {
   NativeModules,
 } from 'react-native';
 
-// import ImagePicker from 'react-native-image-crop-picker';
+import ImagePicker from 'react-native-image-crop-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Modal from 'react-native-modal';
 
-var ImagePicker = NativeModules.ImageCropPicker;
-
 const OwnGallery = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [image, setImage] = useState(null);
-  const [images, setImages] = useState(null);
-
-  const cleanupImages = () => {
-    ImagePicker.clean()
-      .then(() => {
-        // console.log('removed tmp images from tmp directory');
-        alert('Temporary images history cleared');
-      })
-      .catch(e => {
-        alert(e);
-      });
-  };
-
-  const pickMultiple = () => {
-    ImagePicker.openPicker({
-      multiple: true,
-      waitAnimationEnd: false,
-      includeExif: true,
-      forceJpg: true,
-    })
-      .then(images => {
-        setImage(null);
-        setImages(
-          images.map(i => {
-            console.log('received image', i);
-            return {
-              uri: i.path,
-              width: i.width,
-              height: i.height,
-              mime: i.mime,
-            };
-          }),
-        );
-      })
-      .catch(e => alert(e));
-  };
-
-  const renderImage1 = image => {
-    return (
-      <Image
-        style={{width: 200, height: 200, resizeMode: 'contain'}}
-        source={image}
-      />
-    );
-  };
-
-  const renderAsset = image => {
-    if (image.mime && image.mime.toLowerCase().indexOf('video/') !== -1) {
-      return renderVideo(image);
-    }
-
-    return renderImage(image);
-  };
+  const [images, setImages] = useState([]);
 
   const getImage = async () => {
-    const images = await AsyncStorage.getItem('images');
-    setImages(images);
+    const storedImages = await AsyncStorage.getItem('images');
+    setImages(storedImages);
+  };
+
+  const storeImge = async seneImages => {
+    const images = await AsyncStorage.setItem('images', seneImages.string);
   };
 
   const chooseFromGallery = () => {
-    pickMultiple();
-    // console.log('gallery');
-    // ImagePicker.openPicker({
-    //   width: 300,
-    //   height: 400,
-    //   cropping: true,
-    // })
-    //   .then(image => {
-    //     // console.log(image);
-    //     // AsyncStorage.setItem('images', [
-    //     //   {
-    //     //     id: Date(),
-    //     //     image: JSON.stringify(image.path),
-    //     //   },
-    //     // ]);
-    //     // setImages(images.push(image.path));
-    //     console.log(image.path);
-    //   })
-    //   .catch(function (error) {
-    //     console.log('There has been a problem with your fetch operation: ');
-    //     // ADD THIS THROW error
-    //     throw error;
-    //   });
+    ImagePicker.openPicker({
+      width: 300,
+      multiple: true,
+      height: 400,
+      cropping: true,
+    }).then(image => {
+      const selectedImagePath = image[0].path;
+      console.log(image);
+      console.log('images', images);
+      setModalVisible(false);
+      images.push(selectedImagePath);
+      console.log('images', images);
+      // storeImge(images);
+    });
   };
 
   const takeWithCamera = () => {
-    // // console.log('gallery');
-    // ImagePicker.openCamera({
-    //   width: 300,
-    //   height: 400,
-    //   cropping: true,
-    // })
-    //   .then(image => {
-    //     console.log('images befor', images);
-    //     const p = image['path'];
-    //     setImages(p);
-    //     setModalVisible(false);
-    //     console.log('images after', images);
-    //   })
-    //   .catch(error => {
-    //     console.log(error);
-    //   });
+    ImagePicker.openCamera({
+      width: 300,
+      height: 400,
+      cropping: true,
+    }).then(image => {
+      const selectedImagePath = image['path'];
+      console.log('images', images);
+      setModalVisible(false);
+      images.push(selectedImagePath);
+      console.log('images', images);
+    });
   };
 
   const renderImage = image => {
     return (
-      <View style={{flex: 1, alignItems: 'center', padding: 10}}>
-        <View style={{height: 300, width: 350}}>
-          <Image style={{flex: 1, height: 200, width: 200}} source={image} />
+      <View style={{alignItems: 'center', padding: 10}}>
+        <View>
+          <Image
+            style={{
+              height: 200,
+              width: 350,
+              resizeMode: 'cover',
+              marginBottom: 20,
+            }}
+            source={{
+              uri: image,
+            }}
+          />
         </View>
       </View>
     );
@@ -176,10 +121,12 @@ const OwnGallery = () => {
           </TouchableOpacity>
         </View>
       </Modal>
+
       <FlatList
         scrollEnabled={true}
         pagingEnabled
         data={images}
+        showsVerticalScrollIndicator={false}
         renderItem={({item}) => renderImage(item)}
       />
     </View>
@@ -207,4 +154,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#DDDBCF',
     borderRadius: 10,
   },
+  grid: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    padding: 2,
+  },
 });
+
+// {"cropRect": {"height": 960, "width": 719, "x": 120, "y": 0},
+//  "height": 400,
+//  "mime": "image/jpeg",
+//   "modificationDate": "1624193418000",
+//    "path": "file:///storage/emulated/0/Android/data/com.zero/files/Pictures/4210bb0e-3c0d-407c-9665-29c0bb3f8106.jpg",
+//    "size": 64120, "width": 300}
