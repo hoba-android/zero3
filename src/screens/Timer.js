@@ -31,6 +31,9 @@ import Icon from 'react-native-vector-icons/Entypo';
 import DatePicker from 'react-native-date-picker';
 import Modal1 from 'react-native-modal';
 
+import {useSelector, useDispatch} from 'react-redux';
+import * as actions from '../store/fastActions';
+
 const typeText = {
   13: '13',
   16: '16 : 8',
@@ -38,17 +41,36 @@ const typeText = {
   20: '20 : 4',
 };
 
-const Timer = ({navigation}) => {
+const Timer = ({route, navigation}) => {
   const [date, setDate] = useState(new Date());
+  const [type, setType] = useState('16');
+  const [fastedHours, setFastedHours] = useState(16);
+
   const [modalVisible, setModalVisible] = useState(false);
-
   const [timerOn, setTimerOn] = useState(false);
-
   const [staredTime, setStaredTime] = useState(moment('2021-06-08'));
   const [elepsedTime, setElepsedTime] = useState('00:00:00');
   const [elepsedPercent, setElepsedPercent] = useState(0);
-
   const [fastDuration, setFastDuration] = useState(16);
+
+  const dispatch = useDispatch();
+
+  // useEffect(() => {
+  //   console.log('effect');
+  //   if (route.params !== undefined) {
+  //     const {fastType} = route.params;
+  //     console.log(fastType);
+  //     setType(fastType);
+  //   }
+  // }, []);
+
+  if (route.params !== undefined) {
+    const {fastType} = route.params;
+    console.log(fastType);
+  } else {
+    const fastType = '16';
+    console.log(fastType);
+  }
 
   const timestamp_to_seconds = timestamp => {
     var [hours, minutes, seconds] = timestamp
@@ -90,8 +112,6 @@ const Timer = ({navigation}) => {
   //   }
   // }, 3000);
 
-  useEffect(() => {}, []);
-
   // BackgroundTimer.stopBackgroundTimer();
 
   const googleSignOut = async () => {
@@ -102,6 +122,11 @@ const Timer = ({navigation}) => {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const addAFast = addedFast => {
+    console.log('fast added');
+    dispatch(actions.addFast(addedFast));
   };
 
   return (
@@ -213,6 +238,22 @@ const Timer = ({navigation}) => {
           <View style={styles.endView}>
             <Text style={{fontSize: 16, fontWeight: 'bold', color: '#F7803C'}}>
               Send notification
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() =>
+            addAFast({
+              id: new Date(),
+              type: type,
+              date: moment(date).format('dd mm yy'),
+              duration: fastedHours,
+            })
+          }>
+          <View style={styles.endView}>
+            <Text style={{fontSize: 16, fontWeight: 'bold', color: '#F7803C'}}>
+              Add a fast
             </Text>
           </View>
         </TouchableOpacity>

@@ -11,32 +11,41 @@ import {
 } from 'react-native';
 
 import ImagePicker from 'react-native-image-crop-picker';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Modal from 'react-native-modal';
 
-const OwnGallery = () => {
+const OwnGallery = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [images, setImages] = useState([]);
 
   // useEffect(() => {
-  //   // navigation.addListener('focus', () => {
-  //   //   setPuased(false);
-  //   //   setContols(true);
-  //   // });
-  //   // navigation.addListener('blur', () => {
-  //   //   setPuased(true);
-  //   //   setContols(false);
-  //   // });
+  //   navigation.addListener('focus', () => {
+  //     getImage();
+  //   });
   // }, []);
+
+  async function getImage() {
+    try {
+      const storedImages = await AsyncStorage.getItem('storedimages');
+      console.log('from use effect', storedImages);
+
+      if (storedImages !== null) {
+        setImages(storedImages);
+        console.log('after calling asyc', images);
+      }
+    } catch (e) {
+      // saving error
+    }
+  }
 
   // useEffect(() => {
   //   console.log('images use effec', images);
 
   //   (async function fetchData() {
   //     try {
-  //       const storedImages = await AsyncStorage.getItem('storedimage');
+  //       const storedImages = await AsyncStorage.getItem('storedimages');
   //       console.log('from use effect', storedImages);
 
   //       if (storedImages !== null) {
@@ -49,14 +58,15 @@ const OwnGallery = () => {
   //   })();
   // }, []);
 
-  // const storeImge = async seneImages => {
-  //   try {
-  //     await AsyncStorage.setItem('storedimage', JSON.stringify(seneImages));
-  //     console.log('from store', images);
-  //   } catch (e) {
-  //     // saving error
-  //   }
-  // };
+  const storeImge = async seneImages => {
+    try {
+      await AsyncStorage.setItem('storedimages', JSON.stringify(seneImages));
+      const stored = await AsyncStorage.getItem('storedimages');
+      console.log('from store', stored);
+    } catch (e) {
+      // saving error
+    }
+  };
 
   const chooseFromGallery = () => {
     ImagePicker.openPicker({
@@ -67,9 +77,10 @@ const OwnGallery = () => {
     }).then(image => {
       const selectedImagePath = image[0].path;
       setModalVisible(false);
-      console.log('images choose', images);
+
       setImages([...images, {id: Date(), url: selectedImagePath}]);
-      // storeImge(images);
+      console.log('images choose', images);
+      storeImge(images);
     });
   };
 
@@ -82,7 +93,7 @@ const OwnGallery = () => {
       const selectedImagePath = image['path'];
       setModalVisible(false);
       setImages([...images, {id: new Date(), url: selectedImagePath}]);
-      // storeImge(images);
+      storeImge(images);
     });
   };
 

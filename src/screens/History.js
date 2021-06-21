@@ -18,75 +18,18 @@ import {LogBox} from 'react-native';
 LogBox.ignoreLogs(['Reanimated 2']);
 
 import HistoryComp from './components/HistoryComp';
+import {useSelector, useDispatch} from 'react-redux';
+
 const {width, height} = Dimensions.get('screen');
-const DATA = [
-  {
-    id: 1,
-    type: 18,
-    duration: '10 hours',
-    date: 'June, 1',
-  },
-  {
-    id: 2,
-    type: 20,
-    duration: '22 hours',
-    date: 'June, 2',
-  },
-  {
-    id: 3,
-    type: 20,
-    duration: '12 hours',
-    date: 'June, 3',
-  },
-  {
-    id: 4,
-    type: 13,
-    duration: '16 hours',
-    date: 'June, 4',
-  },
-  {
-    id: 5,
-    type: 16,
-    duration: '16 hours',
-    date: 'June, 5',
-  },
-  {
-    id: 6,
-    type: 16,
-    duration: '17 hours',
-    date: 'June, 6',
-  },
-  {
-    id: 7,
-    type: 18,
-    duration: '19 hours',
-    date: 'Jan, 23',
-  },
-  {
-    id: 8,
-    type: 13,
-    duration: '10 hours',
-    date: 'Oct, 29',
-  },
-  {
-    id: 9,
-    type: 13,
-    duration: '12 hours',
-    date: 'Nov, 20',
-  },
-  {
-    id: 10,
-    type: 20,
-    duration: '23 hours',
-    date: 'May, 30',
-  },
-];
 
 const SPACING = 20;
 const ITEM_SIZE = 100;
 
 const History = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
+
+  const fasts = useSelector(state => state.fasts.fasts);
+  // console.log(fasts);
 
   return (
     <View
@@ -115,7 +58,7 @@ const History = () => {
           paddingTop: StatusBar.currentHeight || 45,
         }}
         showsVerticalScrollIndicator={false}
-        data={DATA}
+        data={fasts}
         keyExtractor={item => item.id}
         renderItem={({item, index}) => {
           const inputRange = [

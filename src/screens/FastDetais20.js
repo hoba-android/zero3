@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/Entypo';
 import Icon2 from 'react-native-vector-icons/FontAwesome5';
 import Icon3 from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const FastDetais20 = () => {
+const FastDetais20 = ({navigation}) => {
   return (
     <View style={styles.main}>
       <View
@@ -43,7 +43,7 @@ const FastDetais20 = () => {
       </View>
 
       <TouchableOpacity
-        onPress={() => {}}
+        onPress={() => navigation.navigate('Timer', {fastType: '20'})}
         style={{
           width: 180,
           height: 40,
