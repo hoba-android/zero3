@@ -231,7 +231,7 @@ const Timer = ({route, navigation}) => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() =>
             hadleScheduledNotification('Bravo', 'You completed your fasting')
           }>
@@ -256,7 +256,7 @@ const Timer = ({route, navigation}) => {
               Add a fast
             </Text>
           </View>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </ScrollView>
   );
