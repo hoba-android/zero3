@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 
 import ImagePicker from 'react-native-image-crop-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Modal from 'react-native-modal';
@@ -20,14 +20,43 @@ const OwnGallery = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [images, setImages] = useState([]);
 
-  const getImage = async () => {
-    const storedImages = await AsyncStorage.getItem('images');
-    setImages(storedImages);
-  };
+  // useEffect(() => {
+  //   // navigation.addListener('focus', () => {
+  //   //   setPuased(false);
+  //   //   setContols(true);
+  //   // });
+  //   // navigation.addListener('blur', () => {
+  //   //   setPuased(true);
+  //   //   setContols(false);
+  //   // });
+  // }, []);
 
-  const storeImge = async seneImages => {
-    const images = await AsyncStorage.setItem('images', seneImages.string);
-  };
+  // useEffect(() => {
+  //   console.log('images use effec', images);
+
+  //   (async function fetchData() {
+  //     try {
+  //       const storedImages = await AsyncStorage.getItem('storedimage');
+  //       console.log('from use effect', storedImages);
+
+  //       if (storedImages !== null) {
+  //         setImages(storedImages);
+  //         console.log('after calling asyc', images);
+  //       }
+  //     } catch (e) {
+  //       // saving error
+  //     }
+  //   })();
+  // }, []);
+
+  // const storeImge = async seneImages => {
+  //   try {
+  //     await AsyncStorage.setItem('storedimage', JSON.stringify(seneImages));
+  //     console.log('from store', images);
+  //   } catch (e) {
+  //     // saving error
+  //   }
+  // };
 
   const chooseFromGallery = () => {
     ImagePicker.openPicker({
@@ -37,11 +66,9 @@ const OwnGallery = () => {
       cropping: true,
     }).then(image => {
       const selectedImagePath = image[0].path;
-      console.log(image);
-      console.log('images', images);
       setModalVisible(false);
-      images.push(selectedImagePath);
-      console.log('images', images);
+      console.log('images choose', images);
+      setImages([...images, {id: Date(), url: selectedImagePath}]);
       // storeImge(images);
     });
   };
@@ -53,10 +80,9 @@ const OwnGallery = () => {
       cropping: true,
     }).then(image => {
       const selectedImagePath = image['path'];
-      console.log('images', images);
       setModalVisible(false);
-      images.push(selectedImagePath);
-      console.log('images', images);
+      setImages([...images, {id: new Date(), url: selectedImagePath}]);
+      // storeImge(images);
     });
   };
 
@@ -72,7 +98,7 @@ const OwnGallery = () => {
               marginBottom: 20,
             }}
             source={{
-              uri: image,
+              uri: image.url,
             }}
           />
         </View>
@@ -126,7 +152,9 @@ const OwnGallery = () => {
         scrollEnabled={true}
         pagingEnabled
         data={images}
+        style={{marginBottom: 50}}
         showsVerticalScrollIndicator={false}
+        keyExtractor={item => item.id}
         renderItem={({item}) => renderImage(item)}
       />
     </View>
