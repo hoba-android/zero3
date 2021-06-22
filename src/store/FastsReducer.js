@@ -9,7 +9,6 @@ const initialState = {
 export default (state = initialState, action) => {
   switch (action.type) {
     case ADD_FAST:
-      console.log('add fast reducer called', action.payload);
       return {
         ...state,
         fasts: state.fasts.concat(action.payload),

@@ -21,11 +21,7 @@ import {
   hadleScheduledNotification,
 } from '../notification.android';
 
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 import Icon from 'react-native-vector-icons/Entypo';
 import DatePicker from 'react-native-date-picker';
@@ -47,29 +43,23 @@ const Timer = ({route, navigation}) => {
   const [fastedHours, setFastedHours] = useState(16);
 
   const [modalVisible, setModalVisible] = useState(false);
+
   const [timerOn, setTimerOn] = useState(false);
-  const [staredTime, setStaredTime] = useState(moment('2021-06-08'));
+  const [staredTime, setStaredTime] = useState('');
+
   const [elepsedTime, setElepsedTime] = useState('00:00:00');
+
   const [elepsedPercent, setElepsedPercent] = useState(0);
-  const [fastDuration, setFastDuration] = useState(16);
 
   const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   console.log('effect');
-  //   if (route.params !== undefined) {
-  //     const {fastType} = route.params;
-  //     console.log(fastType);
-  //     setType(fastType);
-  //   }
-  // }, []);
+  var fastDuration = 16;
 
   if (route.params !== undefined) {
-    const {fastType} = route.params;
-    console.log(fastType);
+    var {fastType} = route.params;
+    fastDuration = +fastType;
   } else {
-    const fastType = '16';
-    console.log(fastType);
+    var fastType = '16';
   }
 
   const timestamp_to_seconds = timestamp => {
@@ -79,7 +69,17 @@ const Timer = ({route, navigation}) => {
     return seconds + 60 * minutes + 60 * 60 * hours;
   };
 
+  // BackgroundTimer.runBackgroundTimer(() => {
+  //   if (timerOn) {
+  //     getTimeElapsed();
+  //   }
+  // }, 1000);
+
   const getTimeElapsed = () => {
+    const diffInMs = new Date() - staredTime;
+    const diffInHours = diffInMs / 1000 / 60 / 60;
+    setFastedHours(diffInHours);
+
     const nowTime = moment();
 
     const ms = nowTime.diff(staredTime);
@@ -96,36 +96,45 @@ const Timer = ({route, navigation}) => {
       ':' +
       pad(d.getUTCSeconds());
 
-    // const start = new Date(staredTime);
-    // const end = new Date();
-    // const ratio = (Math.round(end - start) / start) * 100;
-
-    // setElepsedPercent(ratio);
-
+    const start = new Date(staredTime);
+    const end = new Date();
+    const ratio = ((Math.round(end - start) / start) * 100).toFixed(2);
+    console.log(ratio);
+    setElepsedPercent(ratio);
     setElepsedTime(s);
   };
 
-  // BackgroundTimer.runBackgroundTimer(() => {
-  //   console.log(timerOn);
-  //   if (timerOn) {
-  //     getTimeElapsed();
-  //   }
-  // }, 3000);
+  const startFast = () => {
+    setDate(new Date());
+    setStaredTime(new Date());
+  };
 
-  // BackgroundTimer.stopBackgroundTimer();
+  const endFast = () => {
+    getTimeElapsed();
 
-  const googleSignOut = async () => {
-    try {
-      await GoogleSignin.revokeAccess();
-      await GoogleSignin.signOut();
-      navigation.navigate('Log In');
-    } catch (error) {
-      console.error(error);
+    setElepsedTime('00:00:00');
+    setElepsedPercent(0);
+    hadleScheduledNotification('Bravo', 'You completed your fasting');
+
+    addAFast({
+      id: new Date(),
+      type: fastType,
+      date: moment(date).format('dd mm yy'),
+      duration: fastedHours,
+    });
+  };
+
+  const handFastButton = () => {
+    if (timerOn) {
+      setTimerOn(false);
+      endFast();
+    } else if (timerOn == false) {
+      setTimerOn(true);
+      startFast();
     }
   };
 
   const addAFast = addedFast => {
-    console.log('fast added');
     dispatch(actions.addFast(addedFast));
   };
 
@@ -151,7 +160,6 @@ const Timer = ({route, navigation}) => {
           <Text style={{fontWeight: 'bold', fontSize: 12}}>
             {typeText[fastDuration]} TRF
           </Text>
-          {/* <Button title="sing out" onPress={googleSignOut} /> */}
         </View>
         <View
           style={{
@@ -161,16 +169,15 @@ const Timer = ({route, navigation}) => {
           }}>
           <AnimatedCircularProgress
             size={300}
-            width={35}
+            width={25}
             fill={elepsedPercent}
             tintColor="#F7803C"
-            onAnimationComplete={() => console.log('onAnimationComplete')}
+            onAnimationComplete={() => {}}
             backgroundColor="#3d5875"
           />
 
           <View style={styles.col2}>
             <Text style={{fontSize: 14, marginBottom: 15}}>
-              {' '}
               Elapsed time : {elepsedPercent} %
             </Text>
             <Text style={{fontSize: 35, marginBottom: 15}}> {elepsedTime}</Text>
@@ -216,47 +223,13 @@ const Timer = ({route, navigation}) => {
           </View>
         </View>
 
-        <TouchableOpacity
-          onPress={() => {
-            if (timerOn) {
-              setTimerOn(false);
-            } else if (timerOn == false) {
-              setTimerOn(true);
-            }
-          }}>
+        <TouchableOpacity onPress={handFastButton}>
           <View style={styles.endView}>
             <Text style={{fontSize: 16, fontWeight: 'bold', color: '#F7803C'}}>
               {timerOn ? 'End fast' : 'Start fast'}
             </Text>
           </View>
         </TouchableOpacity>
-
-        {/* <TouchableOpacity
-          onPress={() =>
-            hadleScheduledNotification('Bravo', 'You completed your fasting')
-          }>
-          <View style={styles.endView}>
-            <Text style={{fontSize: 16, fontWeight: 'bold', color: '#F7803C'}}>
-              Send notification
-            </Text>
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() =>
-            addAFast({
-              id: new Date(),
-              type: type,
-              date: moment(date).format('dd mm yy'),
-              duration: fastedHours,
-            })
-          }>
-          <View style={styles.endView}>
-            <Text style={{fontSize: 16, fontWeight: 'bold', color: '#F7803C'}}>
-              Add a fast
-            </Text>
-          </View>
-        </TouchableOpacity> */}
       </View>
     </ScrollView>
   );
